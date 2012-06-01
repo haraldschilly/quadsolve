@@ -48,11 +48,12 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
    * 
    */
   private void solve() {
-    if (a == 0) {
-      if (b == 0) {
-        if (c == 0) {
+    if (Math.abs(a) < 1e-10) {
+      if (Math.abs(b) < 1e-10) {
+        if (Math.abs(c) < 1e-10) {
           sol1.setText("alles");
           sol2.setText("");
+          return;
         }
         sol1.setText("nichts");
         sol2.setText("");
@@ -86,6 +87,10 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
     } catch (NumberFormatException nfe) {
       Log.wtf("QS", "needs to be doubles!");
     }
+
+    seekA.setProgress((int) (10 * a + (seekA.getMax() / 2)));
+    seekB.setProgress((int) (10 * b + (seekB.getMax() / 2)));
+    seekC.setProgress((int) (10 * c + (seekC.getMax() / 2)));
   }
 
   @Override
