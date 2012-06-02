@@ -1,3 +1,20 @@
+/**
+ * QuadSolve - simple android demo app solving a quadratic equation
+ * Copyright 2012: Harald Schilly <harald.schilly@univie.ac.at>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package at.univie.mat.quadsolve;
 
 import android.app.Activity;
@@ -10,11 +27,18 @@ import android.widget.TextView;
 
 public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.OnSeekBarChangeListener {
 
-  private TextView sol1, sol2, txtA, txtB, txtC;
-  private SeekBar  seekA, seekB, seekC;
-  private double   a, b, c;
+  // scaling of the seek bars
+  private final static double SCALE_DIV = 10.0;
+
+  // UI elements
+  private TextView            sol1, sol2, txtA, txtB, txtC;
+  private SeekBar             seekA, seekB, seekC;
+
+  // internal state
+  private double              a, b, c;
 
   private void bind() {
+    // get ui objects
     sol1 = (TextView) findViewById(R.id.sol1);
     sol2 = (TextView) findViewById(R.id.sol2);
 
@@ -25,15 +49,8 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
     seekA = (SeekBar) findViewById(R.id.seekBarA);
     seekB = (SeekBar) findViewById(R.id.seekBarB);
     seekC = (SeekBar) findViewById(R.id.seekBarC);
-  }
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.main);
-
-    bind();
-
+    // connect via event listeners
     txtA.addTextChangedListener(this);
     txtB.addTextChangedListener(this);
     txtC.addTextChangedListener(this);
@@ -43,9 +60,16 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
     seekC.setOnSeekBarChangeListener(this);
   }
 
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.main);
+
+    bind();
+  }
+
   /**
-   * this method gets all the values and solves the equation!
-   * 
+   * this method solves the equation based on the state of a,b and c!
    */
   private void solve() {
     if (Math.abs(a) < 1e-10) {
@@ -77,6 +101,9 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
     }
   }
 
+  /**
+   * called after a textbox is modified. all three boxes are parsed.
+   */
   @Override
   public void afterTextChanged(Editable tbox) {
     try {
@@ -88,23 +115,20 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
       Log.wtf("QS", "needs to be doubles!");
     }
 
-    seekA.setProgress((int) (10 * a + (seekA.getMax() / 2)));
-    seekB.setProgress((int) (10 * b + (seekB.getMax() / 2)));
-    seekC.setProgress((int) (10 * c + (seekC.getMax() / 2)));
+    seekA.setProgress((int) (SCALE_DIV * a + (seekA.getMax() / 2)));
+    seekB.setProgress((int) (SCALE_DIV * b + (seekB.getMax() / 2)));
+    seekC.setProgress((int) (SCALE_DIV * c + (seekC.getMax() / 2)));
   }
 
-  @Override
-  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-  }
-
-  @Override
-  public void onTextChanged(CharSequence s, int start, int before, int count) {
-  }
-
+  /**
+   * called when the slider is moved. note, that it needs to be scaled and the
+   * scaling has to match with the one in {@link #afterTextChanged(Editable)}.
+   */
   @Override
   public void onProgressChanged(SeekBar seekBar, int val, boolean fromUser) {
-    double v = (val - seekBar.getMax() / 2) / 10.0; // scale to max
-    if (fromUser) {
+    double v = (val - seekBar.getMax() / 2) / SCALE_DIV; // scale to max
+
+    if (fromUser) { // important check, otherwise infinite loop
       if (seekBar == seekA) {
         txtA.setText(Double.toString(v));
       } else if (seekBar == seekB) {
@@ -115,11 +139,21 @@ public class QuadSolveActivity extends Activity implements TextWatcher, SeekBar.
     }
   }
 
+  // the following empty methods are from the listener interfaces
+
   @Override
-  public void onStartTrackingTouch(SeekBar seekBar) {
+  public void onStartTrackingTouch(SeekBar arg0) {
   }
 
   @Override
-  public void onStopTrackingTouch(SeekBar seekBar) {
+  public void onStopTrackingTouch(SeekBar arg0) {
+  }
+
+  @Override
+  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+  }
+
+  @Override
+  public void onTextChanged(CharSequence s, int start, int before, int count) {
   }
 }
